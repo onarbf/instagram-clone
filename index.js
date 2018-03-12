@@ -7,6 +7,7 @@ import {makeExecutableSchema} from 'graphql-tools';
 
 import typeDefs from './schemas';
 import resolvers from './resolvers';
+import models from './models';
 
 mongoose.Promise = global.Promise;
 
@@ -21,10 +22,16 @@ const HOSTPORT = '27017';
 const app = express();
 
 // bodyParser is needed just for POST.
-app.use('/graphql', bodyParser.json(), graphqlExpress({ schema }));
+app.use('/graphql', bodyParser.json(), graphqlExpress({
+  schema,
+  context:{
+    models
+  } }));
 app.get('/graphiql', graphiqlExpress({endpointURL: '/graphql' }));
 app.get('/', (req,res)=>{
   res.send('works');
 });
-mongoose.connect('mongodb://'+ IP +':' + HOSTPORT + '/test');
+mongoose.connect(`mongodb://${IP}:${HOSTPORT}/instagram-clone`,()=>{
+  console.log('Connected to MongoDB');
+});
 app.listen(PORT,HOST,()=>{console.log('Running GraphQl Server... on port ' + PORT +' '+ HOST );});
